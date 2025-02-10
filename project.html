@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Project</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="project-page">
+    <div class="project-container">
+        <h1>Balanced and Unbalanced Load Analysis</h1>
+
+        <!-- Load Selection Buttons -->
+        <div class="load-selection">
+            <button id="balanced-load-btn" class="load-btn active">Balanced Load</button>
+            <button id="unbalanced-load-btn" class="load-btn">Unbalanced Load</button>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <!-- Balanced Load Inputs -->
+            <div id="balanced-inputs">
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="resistance" step="any" required>
+                    <label for="resistance">Resistance (R) [Ω]</label>
+                    <input type="range" id="resistance-slider" min="1" max="1000" step="1" value="10">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-magnet"></i>
+                    <input type="number" id="inductance" step="any" required>
+                    <label for="inductance">Inductance (L) [H]</label>
+                    <input type="range" id="inductance-slider" min="0.01" max="10" step="0.01" value="0.1">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-battery-full"></i>
+                    <input type="number" id="capacitance" step="any" required>
+                    <label for="capacitance">Capacitance (C) [F]</label>
+                    <input type="range" id="capacitance-slider" min="0.000001" max="0.01" step="0.000001" value="0.0001">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-wave-square"></i>
+                    <input type="number" id="frequency" step="any" required>
+                    <label for="frequency">Angular Frequency (ω) [rad/s]</label>
+                    <input type="range" id="frequency-slider" min="1" max="1000" step="1" value="50">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="voltage-amplitude" step="any" required>
+                    <label for="voltage-amplitude">Voltage Amplitude (V₀) [V]</label>
+                    <input type="range" id="voltage-amplitude-slider" min="1" max="500" step="1" value="220">
+                </div>
+            </div>
+
+            <!-- Unbalanced Load Inputs -->
+            <div id="unbalanced-inputs" style="display: none;">
+                <!-- Red Phase -->
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="resistance-r" step="any" required>
+                    <label for="resistance-r">Resistance (R_R) [Ω]</label>
+                    <input type="range" id="resistance-r-slider" min="1" max="1000" step="1" value="10">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-magnet"></i>
+                    <input type="number" id="inductance-r" step="any" required>
+                    <label for="inductance-r">Inductance (L_R) [H]</label>
+                    <input type="range" id="inductance-r-slider" min="0.01" max="10" step="0.01" value="0.1">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-battery-full"></i>
+                    <input type="number" id="capacitance-r" step="any" required>
+                    <label for="capacitance-r">Capacitance (C_R) [F]</label>
+                    <input type="range" id="capacitance-r-slider" min="0.000001" max="0.01" step="0.000001" value="0.0001">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="voltage-r" step="any" required>
+                    <label for="voltage-r">Voltage (V_R) [V]</label>
+                    <input type="range" id="voltage-r-slider" min="1" max="500" step="1" value="220">
+                </div>
+
+                <!-- Yellow Phase -->
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="resistance-y" step="any" required>
+                    <label for="resistance-y">Resistance (R_Y) [Ω]</label>
+                    <input type="range" id="resistance-y-slider" min="1" max="1000" step="1" value="10">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-magnet"></i>
+                    <input type="number" id="inductance-y" step="any" required>
+                    <label for="inductance-y">Inductance (L_Y) [H]</label>
+                    <input type="range" id="inductance-y-slider" min="0.01" max="10" step="0.01" value="0.1">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-battery-full"></i>
+                    <input type="number" id="capacitance-y" step="any" required>
+                    <label for="capacitance-y">Capacitance (C_Y) [F]</label>
+                    <input type="range" id="capacitance-y-slider" min="0.000001" max="0.01" step="0.000001" value="0.0001">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="voltage-y" step="any" required>
+                    <label for="voltage-y">Voltage (V_Y) [V]</label>
+                    <input type="range" id="voltage-y-slider" min="1" max="500" step="1" value="220">
+                </div>
+
+                <!-- Blue Phase -->
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="resistance-b" step="any" required>
+                    <label for="resistance-b">Resistance (R_B) [Ω]</label>
+                    <input type="range" id="resistance-b-slider" min="1" max="1000" step="1" value="10">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-magnet"></i>
+                    <input type="number" id="inductance-b" step="any" required>
+                    <label for="inductance-b">Inductance (L_B) [H]</label>
+                    <input type="range" id="inductance-b-slider" min="0.01" max="10" step="0.01" value="0.1">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-battery-full"></i>
+                    <input type="number" id="capacitance-b" step="any" required>
+                    <label for="capacitance-b">Capacitance (C_B) [F]</label>
+                    <input type="range" id="capacitance-b-slider" min="0.000001" max="0.01" step="0.000001" value="0.0001">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-bolt"></i>
+                    <input type="number" id="voltage-b" step="any" required>
+                    <label for="voltage-b">Voltage (V_B) [V]</label>
+                    <input type="range" id="voltage-b-slider" min="1" max="500" step="1" value="220">
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateAndPlot()">Calculate and Plot</button>
+        </div>
+
+        <div id="error-label" class="error-label"></div>
+
+        <!-- Plots -->
+        <div id="plots">
+            <div id="voltage-plot"></div>
+            <div id="current-plot"></div>
+            <div id="power-plot"></div>
+            <div id="instantaneous-power-plot"></div>
+            <div id="power-plot-r"></div>
+            <div id="power-plot-y"></div>
+            <div id="power-plot-b"></div>
+            <a href="credits.html" class="project-link">View Credits</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
