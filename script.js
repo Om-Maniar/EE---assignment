@@ -75,10 +75,12 @@ document.addEventListener("DOMContentLoaded", function () {
             Plotly.purge("voltage-plot");
             Plotly.purge("current-plot");
             Plotly.purge("power-plot");
+            Plotly.purge("active-power-plot");
+            Plotly.purge("reactive-power-plot");
+            Plotly.purge("apparent-power-plot");
             Plotly.purge("power-plot-r");
             Plotly.purge("power-plot-y");
             Plotly.purge("power-plot-b");
-            
         }
     
         // Clear previous plots before generating new ones
@@ -90,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const t = Array.from({ length: 1000 }, (_, i) => (i / 1000) * 3 * T);
     
         if (isBalancedLoad) {
-            // Balanced Load Calculations
+            // Balanced Load Calculations (unchanged)
             const R = parseFloat(document.getElementById("resistance").value);
             const L = parseFloat(document.getElementById("inductance").value);
             const C = parseFloat(document.getElementById("capacitance").value);
@@ -114,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const Q_total = t.map((_, i) => P_total[i] * Math.tan(theta));
             const S_total = t.map((p, i) => Math.sqrt(p ** 2 + Q_total[i] ** 2));
     
-            // Plot Balanced Load
+            // Plot Balanced Load (unchanged)
             Plotly.newPlot("voltage-plot", [
                 { x: t, y: V_r, mode: "lines", name: "V_R", line: { color: "red" } },
                 { x: t, y: V_y, mode: "lines", name: "V_Y", line: { color: "yellow" } },
@@ -172,8 +174,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 t.map(time => (phaseData[index].V / imp.Z_total) * Math.sin(w * time + phaseAngles[index] - imp.theta))
             );
     
-            const powers = currents.map((current, index) =>
-                t.map((_, i) => voltages[index][i] * current[i])
+            // Calculate Active, Reactive, and Apparent Power for Unbalanced Load
+            const activePowers = impedances.map((imp, index) =>
+                t.map((_, i) => voltages[index][i] * currents[index][i] * Math.cos(imp.theta))
+            );
+    
+            const reactivePowers = impedances.map((imp, index) =>
+                t.map((_, i) => voltages[index][i] * currents[index][i] * Math.sin(imp.theta))
+            );
+    
+            const apparentPowers = impedances.map((imp, index) =>
+                t.map((_, i) => voltages[index][i] * currents[index][i])
             );
     
             // Plot Unbalanced Load
@@ -189,11 +200,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 { x: t, y: currents[2], mode: "lines", name: "I_B", line: { color: "blue" } }
             ], { title: "Phase Currents (Unbalanced)", xaxis: { title: "Time (s)" }, yaxis: { title: "Current (A)" }});
     
-            ["r", "y", "b"].forEach((phase, index) => {
-                Plotly.newPlot(`power-plot-${phase}`, [
-                    { x: t, y: powers[index], mode: "lines", name: `P_${phase.toUpperCase()}`, line: { color: phase } }
-                ], { title: `Power in ${phase.toUpperCase()} Phase (Unbalanced)`, xaxis: { title: "Time (s)" }, yaxis: { title: "Power (W)" }});
-            });
+            // Plot Power Parameters for Unbalanced Load
+            Plotly.newPlot("active-power-plot", [
+                { x: t, y: activePowers[0], mode: "lines", name: "Active Power (R)", line: { color: "red" } },
+                { x: t, y: activePowers[1], mode: "lines", name: "Active Power (Y)", line: { color: "yellow" } },
+                { x: t, y: activePowers[2], mode: "lines", name: "Active Power (B)", line: { color: "blue" } }
+            ], { title: "Active Power (Unbalanced)", xaxis: { title: "Time (s)" }, yaxis: { title: "Power (W)" }});
+    
+            Plotly.newPlot("reactive-power-plot", [
+                { x: t, y: reactivePowers[0], mode: "lines", name: "Reactive Power (R)", line: { color: "red" } },
+                { x: t, y: reactivePowers[1], mode: "lines", name: "Reactive Power (Y)", line: { color: "yellow" } },
+                { x: t, y: reactivePowers[2], mode: "lines", name: "Reactive Power (B)", line: { color: "blue" } }
+            ], { title: "Reactive Power (Unbalanced)", xaxis: { title: "Time (s)" }, yaxis: { title: "Power (VAR)" }});
+    
+            Plotly.newPlot("apparent-power-plot", [
+                { x: t, y: apparentPowers[0], mode: "lines", name: "Apparent Power (R)", line: { color: "red" } },
+                { x: t, y: apparentPowers[1], mode: "lines", name: "Apparent Power (Y)", line: { color: "yellow" } },
+                { x: t, y: apparentPowers[2], mode: "lines", name: "Apparent Power (B)", line: { color: "blue" } }
+            ], { title: "Apparent Power (Unbalanced)", xaxis: { title: "Time (s)" }, yaxis: { title: "Power (VA)" }});
         }
     }
     
@@ -206,3 +230,93 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+function resetInputsAndPlots() {
+    // Clear all input fields
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.value = "";
+    });
+
+    // Reset all sliders to their default values
+    document.querySelectorAll('input[type="range"]').forEach(slider => {
+        slider.value = slider.defaultValue;
+    });
+
+    // Clear all plots
+    clearPlots();
+
+    // Clear error message
+    errorLabel.textContent = "";
+}
+
+function clearPlots() {
+    Plotly.purge("voltage-plot");
+    Plotly.purge("current-plot");
+    Plotly.purge("power-plot");
+    Plotly.purge("power-plot-r");
+    Plotly.purge("power-plot-y");
+    Plotly.purge("power-plot-b");
+}
+
+function downloadData() {
+    const w = parseFloat(document.getElementById("frequency").value); // Angular frequency
+    const T = 2 * Math.PI / w; // Time period
+    const t = Array.from({ length: 1000 }, (_, i) => (i / 1000) * 3 * T); // Time array
+
+    let csvContent = "Time (s),Voltage (V),Current (A),Power (W)\n";
+
+    if (isBalancedLoad) {
+        const V0 = parseFloat(document.getElementById("voltage-amplitude").value);
+        const R = parseFloat(document.getElementById("resistance").value);
+        const L = parseFloat(document.getElementById("inductance").value);
+        const C = parseFloat(document.getElementById("capacitance").value);
+
+        const Z_R = R;
+        const Z_L = w * L;
+        const Z_C = C > 0 ? 1 / (w * C) : Infinity; // Avoid division by zero
+        const Z_total = Math.sqrt(Z_R ** 2 + (Z_L - Z_C) ** 2);
+        const theta = Math.atan((Z_L - Z_C) / Z_R);
+
+        t.forEach((time) => {
+            const V = V0 * Math.sin(w * time);
+            const I = (V0 / Z_total) * Math.sin(w * time - theta);
+            const P = V * I;
+            csvContent += `${time.toFixed(4)},${V.toFixed(4)},${I.toFixed(4)},${P.toFixed(4)}\n`;
+        });
+    } else {
+        // Unbalanced Load Logic
+        const phaseData = ["r", "y", "b"].map(phase => {
+            return {
+                R: parseFloat(document.getElementById(`resistance-${phase}`).value),
+                L: parseFloat(document.getElementById(`inductance-${phase}`).value),
+                C: parseFloat(document.getElementById(`capacitance-${phase}`).value),
+                V: parseFloat(document.getElementById(`voltage-${phase}`).value)
+            };
+        });
+
+        const phaseAngles = [0, 2 * Math.PI / 3, 4 * Math.PI / 3]; // Phase angles for R, Y, B
+
+        phaseData.forEach((data, index) => {
+            const Z_R = data.R;
+            const Z_L = w * data.L;
+            const Z_C = data.C > 0 ? 1 / (w * data.C) : Infinity; // Avoid division by zero
+            const Z_total = Math.sqrt(Z_R ** 2 + (Z_L - Z_C) ** 2);
+            const theta = Math.atan((Z_L - Z_C) / Z_R);
+
+            t.forEach((time) => {
+                const V = data.V * Math.sin(w * time + phaseAngles[index]);
+                const I = (data.V / Z_total) * Math.sin(w * time + phaseAngles[index] - theta);
+                const P = V * I;
+                csvContent += `${time.toFixed(4)},${V.toFixed(4)},${I.toFixed(4)},${P.toFixed(4)}\n`;
+            });
+        });
+    }
+
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "load_analysis_data.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+}
