@@ -134,8 +134,9 @@
                     <input type="range" id="voltage-b-slider" min="1" max="500" step="1" value="220">
                 </div>
             </div>
-
+            <button class="reset-btn" onclick="resetInputsAndPlots()">Reset</button>
             <button class="calculate-btn" onclick="calculateAndPlot()">Calculate and Plot</button>
+            <button class="download-btn" onclick="downloadData()">Download Data</button>
         </div>
 
         <div id="error-label" class="error-label"></div>
@@ -145,7 +146,9 @@
             <div id="voltage-plot"></div>
             <div id="current-plot"></div>
             <div id="power-plot"></div>
-            <div id="instantaneous-power-plot"></div>
+            <div id="active-power-plot"></div>
+            <div id="reactive-power-plot"></div>
+            <div id="apparent-power-plot"></div>
             <div id="power-plot-r"></div>
             <div id="power-plot-y"></div>
             <div id="power-plot-b"></div>
