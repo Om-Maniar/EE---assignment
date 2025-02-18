@@ -348,3 +348,34 @@ body.project-page {
 #apparent-power-plot:hover {
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
+.reset-btn {
+    padding: 12px 24px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #dc3545; /* Red color for reset */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.reset-btn:hover {
+    background-color: #c82333; /* Darker red on hover */
+    transform: translateY(-3px);
+}
+
+.download-btn {
+    padding: 12px 24px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #28a745; /* Green color for download */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.download-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-3px);
+}
